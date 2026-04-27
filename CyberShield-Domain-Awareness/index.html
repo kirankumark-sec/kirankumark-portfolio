@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield — Domain Attack Awareness</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E24B4A;
+    --red-dark: #A32D2D;
+    --red-light: #FCEBEB;
+    --amber: #EF9F27;
+    --amber-dark: #854F0B;
+    --amber-light: #FAEEDA;
+    --green: #639922;
+    --green-dark: #3B6D11;
+    --green-light: #EAF3DE;
+    --blue: #378ADD;
+    --blue-dark: #185FA5;
+    --blue-light: #E6F1FB;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --bg: #0A0A0F;
+    --bg2: #111118;
+    --bg3: #18181F;
+    --card: #1E1E28;
+    --card2: #252530;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #F0EFF8;
+    --text2: #A09EB8;
+    --text3: #6B6982;
+    --accent: #E24B4A;
+    --accent2: #EF9F27;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo span.shield {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 100% 20%, 100% 70%, 50% 100%, 0% 70%, 0% 20%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 2rem 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(226,75,74,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(226,75,74,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(226,75,74,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(226,75,74,0.12);
+    border: 1px solid rgba(226,75,74,0.3);
+    color: #F09595;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: pulse-border 2s infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(226,75,74,0.3); }
+    50% { border-color: rgba(226,75,74,0.7); }
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 7vw, 88px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .hero h1 .line2 {
+    color: var(--accent);
+    display: block;
+  }
+
+  .hero-sub {
+    max-width: 580px;
+    font-size: 18px;
+    color: var(--text2);
+    margin-bottom: 3rem;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat .num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    color: var(--accent);
+    display: block;
+  }
+
+  .hero-stat .label {
+    font-size: 12px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text3);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--text3), transparent);
+    animation: scroll-drop 1.5s infinite;
+  }
+
+  @keyframes scroll-drop {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 48px);
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .section-desc {
+    color: var(--text2);
+    font-size: 16px;
+    max-width: 600px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  /* ATTACK PATTERNS GRID */
+  .attack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .attack-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .attack-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-4px);
+  }
+
+  .attack-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+  }
+
+  .attack-card.amber { --card-accent: var(--amber); }
+  .attack-card.blue { --card-accent: var(--blue); }
+  .attack-card.teal { --card-accent: var(--teal); }
+  .attack-card.red { --card-accent: var(--accent); }
+
+  .attack-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .attack-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .attack-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 0.5rem;
+  }
+
+  .attack-card p {
+    color: var(--text2);
+    font-size: 14px;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+  }
+
+  .domain-examples {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+  }
+
+  .domain-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .domain-row:last-child { border-bottom: none; }
+
+  .domain-row .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-red { background: var(--accent); }
+  .dot-green { background: var(--green); }
+
+  .domain-row .domain-text { color: #C8C6E0; flex: 1; }
+  .domain-row .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .tag-fake { background: rgba(226,75,74,0.15); color: #F09595; }
+  .tag-real { background: rgba(99,153,34,0.15); color: #97C459; }
+
+  .domain-highlight {
+    color: var(--accent);
+  }
+
+  /* LOSS COUNTER SECTION */
+  .loss-section {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 80px 2rem;
+    text-align: center;
+  }
+
+  .loss-section-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .loss-counter {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(50px, 10vw, 110px);
+    color: var(--accent);
+    letter-spacing: -0.04em;
+    display: block;
+    margin: 1.5rem 0 0.5rem;
+    line-height: 1;
+  }
+
+  .loss-label {
+    color: var(--text2);
+    font-size: 16px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  .loss-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .loss-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: left;
+  }
+
+  .loss-card .lc-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .loss-card .lc-label {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.4;
+    font-weight: 300;
+  }
+
+  .lc-red .lc-num { color: var(--accent); }
+  .lc-amber .lc-num { color: var(--amber); }
+  .lc-blue .lc-num { color: var(--blue); }
+  .lc-teal .lc-num { color: var(--teal); }
+
+  /* COMPARISON TABLE */
+  .compare-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .compare-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-header div {
+    padding: 1rem 1.5rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .compare-row:hover { background: rgba(255,255,255,0.02); }
+  .compare-row:last-child { border-bottom: none; }
+
+  .compare-row div {
+    padding: 1rem 1.5rem;
+    font-size: 14px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .compare-row div:last-child { border-right: none; }
+  .compare-row .col-type { color: var(--text2); font-family: 'Space Mono', monospace; font-size: 12px; }
+  .compare-row .col-fake { color: #F09595; font-family: 'Space Mono', monospace; font-size: 13px; }
+  .compare-row .col-real { color: #97C459; font-family: 'Space Mono', monospace; font-size: 13px; }
+
+  /* EMAIL DEMO */
+  .email-demo-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .email-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .email-card-header {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    background: var(--card2);
+  }
+
+  .email-card-header .dot-group { display: flex; gap: 5px; }
+  .email-card-header .dot-group span { width: 10px; height: 10px; border-radius: 50%; }
+  .email-card-header .dot-group span:nth-child(1) { background: #E24B4A; }
+  .email-card-header .dot-group span:nth-child(2) { background: #EF9F27; }
+  .email-card-header .dot-group span:nth-child(3) { background: #639922; }
+
+  .email-card.legit { border-color: rgba(99,153,34,0.3); }
+  .email-card.legit .email-card-header { border-bottom-color: rgba(99,153,34,0.2); }
+  .email-card.phish { border-color: rgba(226,75,74,0.3); }
+  .email-card.phish .email-card-header { border-bottom-color: rgba(226,75,74,0.2); }
+
+  .email-body {
+    padding: 1.5rem;
+    background: var(--card);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .email-field {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+  }
+
+  .email-field .key { color: var(--text3); min-width: 60px; }
+  .email-field .val { color: var(--text); }
+  .email-field .val.danger { color: #F09595; }
+  .email-field .val.safe { color: #97C459; }
+
+  .email-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  .email-content { color: var(--text2); font-size: 13px; font-weight: 300; }
+
+  .email-btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .email-btn.danger-btn { background: rgba(226,75,74,0.2); color: #F09595; border: 1px solid rgba(226,75,74,0.4); }
+  .email-btn.safe-btn { background: rgba(99,153,34,0.15); color: #97C459; border: 1px solid rgba(99,153,34,0.3); }
+
+  .email-verdict {
+    margin-top: 1.25rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .verdict-phish { background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.3); color: #F09595; }
+  .verdict-safe { background: rgba(99,153,34,0.1); border: 1px solid rgba(99,153,34,0.3); color: #97C459; }
+
+  .verdict-icon { font-size: 16px; }
+
+  /* DETECTION TOOL */
+  .detector-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+  }
+
+  .detector-input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .detector-input {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .detector-input:focus { border-color: var(--accent); }
+  .detector-input::placeholder { color: var(--text3); }
+
+  .detector-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .detector-btn:hover { background: var(--red-dark); }
+  .detector-btn:active { transform: scale(0.98); }
+
+  .detector-result {
+    display: none;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+  }
+
+  .result-safe { background: rgba(99,153,34,0.08); border: 1px solid rgba(99,153,34,0.3); }
+  .result-danger { background: rgba(226,75,74,0.08); border: 1px solid rgba(226,75,74,0.3); }
+  .result-warn { background: rgba(239,159,39,0.08); border: 1px solid rgba(239,159,39,0.3); }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .result-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .result-icon-safe { background: rgba(99,153,34,0.2); }
+  .result-icon-danger { background: rgba(226,75,74,0.2); }
+  .result-icon-warn { background: rgba(239,159,39,0.2); }
+
+  .result-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; }
+  .result-title-safe { color: #97C459; }
+  .result-title-danger { color: #F09595; }
+  .result-title-warn { color: #FAC775; }
+
+  .result-checks { list-style: none; }
+  .result-checks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text2);
+    padding: 5px 0;
+  }
+
+  .check-safe { color: #97C459; }
+  .check-danger { color: #F09595; }
+  .check-warn { color: #FAC775; }
+
+  /* DEFENDER CHECKLIST */
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .checklist-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .checklist-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .checklist-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+
+  .checklist-items { list-style: none; }
+  .checklist-items li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text2);
+    font-weight: 300;
+  }
+
+  .checklist-items li:last-child { border-bottom: none; }
+
+  .check-bullet {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--teal);
+  }
+
+  /* REAL VS FAKE */
+  .trust-rule {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem;
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .trust-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .domain-part {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(16px, 3vw, 26px);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+
+  .part-sub { color: var(--text3); background: rgba(255,255,255,0.03); }
+  .part-dot { color: var(--text3); padding: 10px 4px; background: none; }
+  .part-root { color: #97C459; background: rgba(99,153,34,0.1); border: 1px solid rgba(99,153,34,0.3); }
+  .part-tld { color: #97C459; background: rgba(99,153,34,0.1); border: 1px solid rgba(99,153,34,0.3); }
+  .part-sep { color: var(--text3); padding: 10px 4px; background: none; }
+
+  .trust-note {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--text2);
+    font-size: 14px;
+  }
+
+  .trust-arrow {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--teal);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal);
+    font-size: 10px;
+  }
+
+  /* FINANCIAL IMPACT */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin-top: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 0 0 2.5rem 2rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -7px; top: 6px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+
+  .timeline-item h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-item p {
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  .timeline-item .time-badge {
+    display: inline-block;
+    background: rgba(226,75,74,0.1);
+    border: 1px solid rgba(226,75,74,0.2);
+    color: #F09595;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 0.5rem;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .footer-inner { max-width: 800px; margin: 0 auto; }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    margin-bottom: 1rem;
+  }
+
+  footer p {
+    color: var(--text3);
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.8;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+  }
+
+  .footer-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239,159,39,0.08);
+    border: 1px solid rgba(239,159,39,0.25);
+    color: #FAC775;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* QUIZ */
+  .quiz-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+  }
+
+  .quiz-q {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 0.5rem;
+  }
+
+  .quiz-desc { color: var(--text2); font-size: 14px; margin-bottom: 1.5rem; font-weight: 300; }
+
+  .quiz-options {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .quiz-opt {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .quiz-opt:hover { border-color: var(--border2); color: var(--text); }
+  .quiz-opt.correct { border-color: rgba(99,153,34,0.5); background: rgba(99,153,34,0.08); color: #97C459; }
+  .quiz-opt.wrong { border-color: rgba(226,75,74,0.5); background: rgba(226,75,74,0.08); color: #F09595; }
+
+  .quiz-feedback {
+    display: none;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-next {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 24px;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    display: none;
+  }
+
+  .quiz-next:hover { border-color: var(--accent); color: var(--accent); }
+
+  .quiz-progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .qp-dot {
+    height: 3px;
+    flex: 1;
+    border-radius: 3px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .qp-dot.done { background: var(--accent); }
+  .qp-dot.active { background: var(--amber); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* FADE IN ANIMATION */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .email-demo-wrap { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+    .nav-links { display: none; }
+    .trust-diagram { gap: 0; }
+    .domain-part { font-size: 16px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="shield"></span>
+    CyberShield
+  </a>
+  <ul class="nav-links">
+    <li><a href="#attacks">Attack Types</a></li>
+    <li><a href="#email">Email Scams</a></li>
+    <li><a href="#detect">Detector</a></li>
+    <li><a href="#defend">Defend</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-badge">⚠ Security Awareness Training</div>
+
+  <h1>
+    Don't Fall for
+    <span class="line2">Fake Domains</span>
+  </h1>
+
+  <p class="hero-sub">
+    Phishing attacks cost businesses billions annually. Learn to identify deceptive domains, spoofed emails, and typosquatting attacks before they steal your data — or your money.
+  </p>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="num">$4.9B</span>
+      <span class="label">Lost to phishing in 2023</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">3.4B</span>
+      <span class="label">Phishing emails sent daily</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">90%</span>
+      <span class="label">Of breaches start with phishing</span>
+    </div>
+  </div>
+
+  <div class="scroll-cue">
+    <span>Scroll to learn</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- LOSS BANNER -->
+<div class="loss-section">
+  <div class="loss-section-inner">
+    <div class="section-label">Financial Impact</div>
+    <h2 class="section-title">The Real Cost of One Click</h2>
+    <p class="loss-label">Global losses from phishing and payment fraud attacks</p>
+    <span class="loss-counter" id="counter">$0</span>
+    <p style="color: var(--text3); font-size: 13px;">lost to cybercrime globally per minute</p>
+
+    <div class="loss-cards">
+      <div class="loss-card lc-red">
+        <div class="lc-num">$36,000</div>
+        <div class="lc-label">Average loss per business email compromise incident</div>
+      </div>
+      <div class="loss-card lc-amber">
+        <div class="lc-num">197 days</div>
+        <div class="lc-label">Average time to detect a phishing-related breach</div>
+      </div>
+      <div class="loss-card lc-blue">
+        <div class="lc-num">$150M</div>
+        <div class="lc-label">Largest single wire-fraud payment from a spoofed domain</div>
+      </div>
+      <div class="loss-card lc-teal">
+        <div class="lc-num">76%</div>
+        <div class="lc-label">Of organizations were targeted by phishing in 2023</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTACK PATTERNS -->
+<section id="attacks">
+  <div class="section-label">Attack Methods</div>
+  <h2 class="section-title">8 Domain Attack Patterns</h2>
+  <p class="section-desc">Attackers use these well-known techniques to trick users into visiting malicious sites. Study each one carefully.</p>
+
+  <div class="attack-grid">
+
+    <!-- 1 Homoglyph -->
+    <div class="attack-card red fade-in">
+      <div class="attack-num">// 01</div>
+      <div class="attack-icon" style="background: rgba(226,75,74,0.12);">👁</div>
+      <h3>Homoglyph Attacks</h3>
+      <p>Characters that look identical but are different — like Cyrillic "а" vs Latin "a". Your eye cannot tell them apart.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-green"></span>
+          <span class="domain-text">microsoft.com</span>
+          <span class="tag tag-real">Real</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text"><span class="domain-highlight">rn</span>icrosoft.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">micros<span class="domain-highlight">0</span>ft.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">micros<span class="domain-highlight">о</span>ft.com <span style="color:var(--text3);font-size:10px;">(Cyrillic o)</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 Typosquatting -->
+    <div class="attack-card amber fade-in">
+      <div class="attack-num">// 02</div>
+      <div class="attack-icon" style="background: rgba(239,159,39,0.12);">⌨️</div>
+      <h3>Typosquatting</h3>
+      <p>Banking on users making common typing errors. One missing or swapped letter leads to the attacker's site.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-green"></span>
+          <span class="domain-text">paypal.com</span>
+          <span class="tag tag-real">Real</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">p<span class="domain-highlight">aypai</span>.com <span style="color:var(--text3);font-size:10px;">(i not l)</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text"><span class="domain-highlight">paipal</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">paypa<span class="domain-highlight">ll</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Subdomain Abuse -->
+    <div class="attack-card blue fade-in">
+      <div class="attack-num">// 03</div>
+      <div class="attack-icon" style="background: rgba(55,138,221,0.12);">🔗</div>
+      <h3>Subdomain Abuse</h3>
+      <p>The brand name appears as a subdomain, making the URL look legitimate — but the real domain is the attacker's.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-green"></span>
+          <span class="domain-text">login.<span class="domain-highlight" style="color:#97C459;">microsoft.com</span></span>
+          <span class="tag tag-real">Real</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">microsoft.<span class="domain-highlight">login-secure.com</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">microsoft.<span class="domain-highlight">verify-account.net</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">microsoft.<span class="domain-highlight">support-help.org</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 TLD Abuse -->
+    <div class="attack-card teal fade-in">
+      <div class="attack-num">// 04</div>
+      <div class="attack-icon" style="background: rgba(29,158,117,0.12);">🌐</div>
+      <h3>Wrong TLD (TLD Abuse)</h3>
+      <p>Switching the top-level domain from .com to .net, .co, .in or others to register a lookalike domain.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-green"></span>
+          <span class="domain-text">amazon<span class="domain-highlight" style="color:#97C459;">.com</span></span>
+          <span class="tag tag-real">Real</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">amazon<span class="domain-highlight">.co</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">amazon<span class="domain-highlight">.in</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">amazon<span class="domain-highlight">.net</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 Keyword Injection -->
+    <div class="attack-card red fade-in">
+      <div class="attack-num">// 05</div>
+      <div class="attack-icon" style="background: rgba(226,75,74,0.12);">🚨</div>
+      <h3>Security Keyword Injection</h3>
+      <p>Adding words like "secure", "verify", "alert" or "login" to panic users into clicking without thinking.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">apple-<span class="domain-highlight">secure</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">apple-<span class="domain-highlight">verification</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">apple-<span class="domain-highlight">login-alert</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">apple-<span class="domain-highlight">account-reset</span>.net</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 IDN -->
+    <div class="attack-card amber fade-in">
+      <div class="attack-num">// 06</div>
+      <div class="attack-icon" style="background: rgba(239,159,39,0.12);">🔤</div>
+      <h3>Unicode / IDN Attacks</h3>
+      <p>Internationalized Domain Names use Unicode characters that look pixel-for-pixel identical to Latin letters. Extremely dangerous.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-green"></span>
+          <span class="domain-text">google.com</span>
+          <span class="tag tag-real">Real</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">g<span class="domain-highlight">о</span>ogle.com <span style="color:var(--text3);font-size:10px;">(Cyrillic о)</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">g<span class="domain-highlight">ο</span>ogle.com <span style="color:var(--text3);font-size:10px;">(Greek ο)</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">googl<span class="domain-highlight">е</span>.com <span style="color:var(--text3);font-size:10px;">(Cyrillic е)</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 Billing Scam -->
+    <div class="attack-card blue fade-in">
+      <div class="attack-num">// 07</div>
+      <div class="attack-icon" style="background: rgba(55,138,221,0.12);">💳</div>
+      <h3>Billing & Payment Domains</h3>
+      <p>Fake invoices and renewal notices are sent from domains mimicking your bank or software provider to steal payment info.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">netflix-<span class="domain-highlight">billing</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">netflix-<span class="domain-highlight">invoice</span>.net</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">netflix-<span class="domain-highlight">renewal</span>.org</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">netflix-<span class="domain-highlight">payment-verify</span>.com</span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 Display Name Spoofing -->
+    <div class="attack-card teal fade-in">
+      <div class="attack-num">// 08</div>
+      <div class="attack-icon" style="background: rgba(29,158,117,0.12);">📧</div>
+      <h3>Display Name Spoofing</h3>
+      <p>The "From" display name says "PayPal Support" but the actual email domain is a fake. Mobile clients often hide the real address.</p>
+      <div class="domain-examples">
+        <div class="domain-row">
+          <span class="dot dot-green"></span>
+          <span class="domain-text">alerts@<span style="color:#97C459;">paypal.com</span></span>
+          <span class="tag tag-real">Real</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">alerts@<span class="domain-highlight">paypa1.com</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">alerts@<span class="domain-highlight">paypal-support.net</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+        <div class="domain-row">
+          <span class="dot dot-red"></span>
+          <span class="domain-text">alerts@<span class="domain-highlight">paypal.secure-user.com</span></span>
+          <span class="tag tag-fake">Fake</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMPARE TABLE -->
+<section style="padding-top: 0;">
+  <div class="section-label">Side-by-Side</div>
+  <h2 class="section-title">Real vs Fake — Quick Comparison</h2>
+  <p class="section-desc">Test yourself: can you spot the difference before looking at the label?</p>
+
+  <div class="compare-wrap fade-in">
+    <div class="compare-header">
+      <div>Attack Type</div>
+      <div>❌ Fake Domain</div>
+      <div>✅ Real Domain</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">Homoglyph</div>
+      <div class="col-fake">rnicrosoft.com</div>
+      <div class="col-real">microsoft.com</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">Typosquatting</div>
+      <div class="col-fake">faceboook.com</div>
+      <div class="col-real">facebook.com</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">Subdomain Abuse</div>
+      <div class="col-fake">apple.login-verify.com</div>
+      <div class="col-real">apple.com</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">TLD Swap</div>
+      <div class="col-fake">amazon.co / amazon.in</div>
+      <div class="col-real">amazon.com</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">Keyword Injection</div>
+      <div class="col-fake">paypal-secure-login.com</div>
+      <div class="col-real">paypal.com</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">Billing Scam</div>
+      <div class="col-fake">netflix-invoice.net</div>
+      <div class="col-real">netflix.com</div>
+    </div>
+    <div class="compare-row">
+      <div class="col-type">Unicode IDN</div>
+      <div class="col-fake">gо̲о̲gle.com (Cyrillic)</div>
+      <div class="col-real">google.com</div>
+    </div>
+  </div>
+</section>
+
+<!-- EMAIL DEMO -->
+<section id="email">
+  <div class="section-label">Phishing Emails</div>
+  <h2 class="section-title">Real vs Phishing Email</h2>
+  <p class="section-desc">Always check the sender domain — not just the display name. Attackers make the display name look legitimate while hiding the real address.</p>
+
+  <div class="email-demo-wrap fade-in">
+
+    <!-- LEGIT EMAIL -->
+    <div class="email-card legit">
+      <div class="email-card-header">
+        <div class="dot-group"><span></span><span></span><span></span></div>
+        <span style="color:var(--text3);">inbox — legitimate email</span>
+      </div>
+      <div class="email-body">
+        <div class="email-field">
+          <span class="key">From:</span>
+          <span class="val safe">security@paypal.com</span>
+        </div>
+        <div class="email-field">
+          <span class="key">Name:</span>
+          <span class="val">PayPal Security</span>
+        </div>
+        <div class="email-field">
+          <span class="key">To:</span>
+          <span class="val">you@example.com</span>
+        </div>
+        <div class="email-field">
+          <span class="key">Subject:</span>
+          <span class="val">Your recent login activity</span>
+        </div>
+        <hr class="email-divider">
+        <div class="email-content">
+          Hi there,<br><br>
+          We noticed a login to your account. If this was you, no action is needed. Visit paypal.com directly to review your activity.
+        </div>
+        <a class="email-btn safe-btn" style="text-decoration:none;">Visit paypal.com</a>
+        <div class="email-verdict verdict-safe">
+          <span class="verdict-icon">✓</span>
+          Domain matches: paypal.com — This is real.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHISHING EMAIL -->
+    <div class="email-card phish">
+      <div class="email-card-header">
+        <div class="dot-group"><span></span><span></span><span></span></div>
+        <span style="color:var(--text3);">inbox — phishing email</span>
+      </div>
+      <div class="email-body">
+        <div class="email-field">
+          <span class="key">From:</span>
+          <span class="val danger">security@paypa1-secure.net</span>
+        </div>
+        <div class="email-field">
+          <span class="key">Name:</span>
+          <span class="val">PayPal Security ✓</span>
+        </div>
+        <div class="email-field">
+          <span class="key">To:</span>
+          <span class="val">you@example.com</span>
+        </div>
+        <div class="email-field">
+          <span class="key">Subject:</span>
+          <span class="val">⚠️ URGENT: Verify your account NOW</span>
+        </div>
+        <hr class="email-divider">
+        <div class="email-content">
+          ALERT: Your PayPal account has been <strong style="color:#F09595;">suspended</strong>! Click below to verify your identity IMMEDIATELY or lose access permanently.
+        </div>
+        <a class="email-btn danger-btn" style="text-decoration:none;">Verify Now — Limited Time</a>
+        <div class="email-verdict verdict-phish">
+          <span class="verdict-icon">✗</span>
+          Domain is paypa1-secure.net — This is a PHISHING attack.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top: 2rem; background: rgba(239,159,39,0.06); border: 1px solid rgba(239,159,39,0.2); border-radius: 12px; padding: 1.5rem 2rem; display: flex; gap: 16px; align-items: flex-start;" class="fade-in">
+    <div style="font-size: 24px; margin-top: 2px;">💡</div>
+    <div>
+      <div style="font-weight: 600; color: #FAC775; margin-bottom: 6px; font-family: 'Syne', sans-serif;">Red Flags in Phishing Emails</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px;">
+        <div style="font-size: 13px; color: var(--text2); display: flex; gap: 8px;"><span style="color:#EF9F27;">→</span> Urgent / panic language</div>
+        <div style="font-size: 13px; color: var(--text2); display: flex; gap: 8px;"><span style="color:#EF9F27;">→</span> Mismatched sender domain</div>
+        <div style="font-size: 13px; color: var(--text2); display: flex; gap: 8px;"><span style="color:#EF9F27;">→</span> Requests for credentials</div>
+        <div style="font-size: 13px; color: var(--text2); display: flex; gap: 8px;"><span style="color:#EF9F27;">→</span> Generic greetings ("Dear User")</div>
+        <div style="font-size: 13px; color: var(--text2); display: flex; gap: 8px;"><span style="color:#EF9F27;">→</span> Links to non-brand domains</div>
+        <div style="font-size: 13px; color: var(--text2); display: flex; gap: 8px;"><span style="color:#EF9F27;">→</span> Poor spelling / formatting</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST RULE -->
+<section style="padding-top: 0;">
+  <div class="section-label">Golden Rule</div>
+  <h2 class="section-title">Trust the Last Domain, Always</h2>
+  <p class="section-desc">In any URL, only the registrable domain (last two parts before the path) tells you who really owns the site.</p>
+
+  <div class="trust-rule fade-in">
+    <p style="color: var(--text3); font-size: 13px; font-family: 'Space Mono', monospace; margin-bottom: 1.5rem;">Hover to identify the real domain in each URL</p>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 700px; margin: 0 auto;">
+
+      <div>
+        <div style="font-size: 12px; color: var(--teal); font-family: 'Space Mono', monospace; margin-bottom: 8px; letter-spacing: 0.1em;">✓ LEGITIMATE</div>
+        <div class="trust-diagram" style="justify-content: flex-start; gap: 0;">
+          <span class="domain-part part-sub">login</span>
+          <span class="domain-part part-dot">.</span>
+          <span class="domain-part part-root">microsoft</span>
+          <span class="domain-part part-dot">.</span>
+          <span class="domain-part part-tld">com</span>
+        </div>
+        <div class="trust-note" style="justify-content: flex-start; margin-top: 8px;">
+          <span class="trust-arrow">→</span>
+          <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--teal);">microsoft.com</span>
+          <span style="font-size: 12px; color: var(--text3);">is the real domain — Safe</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size: 12px; color: var(--accent); font-family: 'Space Mono', monospace; margin-bottom: 8px; letter-spacing: 0.1em;">✗ PHISHING</div>
+        <div class="trust-diagram" style="justify-content: flex-start; gap: 0;">
+          <span class="domain-part part-sub">microsoft</span>
+          <span class="domain-part part-dot">.</span>
+          <span class="domain-part" style="color:#F09595; background: rgba(226,75,74,0.12); border: 1px solid rgba(226,75,74,0.3);">login-secure</span>
+          <span class="domain-part part-dot">.</span>
+          <span class="domain-part" style="color:#F09595; background: rgba(226,75,74,0.12); border: 1px solid rgba(226,75,74,0.3);">com</span>
+        </div>
+        <div class="trust-note" style="justify-content: flex-start; margin-top: 8px;">
+          <span style="width:20px; height:20px; border-radius:50%; border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:center; color:var(--accent); font-size:10px;">→</span>
+          <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent);">login-secure.com</span>
+          <span style="font-size: 12px; color: var(--text3);">is the real domain — Attacker's site!</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DOMAIN DETECTOR -->
+<section id="detect">
+  <div class="section-label">Interactive Tool</div>
+  <h2 class="section-title">Domain Risk Detector</h2>
+  <p class="section-desc">Enter any domain URL and see an instant risk analysis. Use this to evaluate suspicious links before clicking.</p>
+
+  <div class="detector-wrap fade-in">
+    <div class="detector-input-row">
+      <input class="detector-input" id="domainInput" type="text" placeholder="e.g. microsoft-login-secure.com or paypa1.com" />
+      <button class="detector-btn" onclick="analyzeDomain()">Analyze →</button>
+    </div>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem;">
+      <span style="font-size: 12px; color: var(--text3); align-self: center; font-family: 'Space Mono', monospace;">Try:</span>
+      <button onclick="setAndAnalyze('microsoft-login-secure.com')" style="background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; color: var(--text2); font-size: 12px; cursor: pointer; font-family: 'Space Mono', monospace; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">microsoft-login-secure.com</button>
+      <button onclick="setAndAnalyze('paypa1.com')" style="background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; color: var(--text2); font-size: 12px; cursor: pointer; font-family: 'Space Mono', monospace; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">paypa1.com</button>
+      <button onclick="setAndAnalyze('google.com')" style="background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; color: var(--text2); font-size: 12px; cursor: pointer; font-family: 'Space Mono', monospace; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">google.com</button>
+      <button onclick="setAndAnalyze('amazon.in')" style="background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; color: var(--text2); font-size: 12px; cursor: pointer; font-family: 'Space Mono', monospace; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">amazon.in</button>
+    </div>
+
+    <div class="detector-result" id="detectorResult"></div>
+  </div>
+</section>
+
+<!-- DEFENDER CHECKLIST -->
+<section id="defend">
+  <div class="section-label">Defence Playbook</div>
+  <h2 class="section-title">How to Defend Against These Attacks</h2>
+  <p class="section-desc">Practical steps for developers, security teams, and everyday users to protect against domain-based attacks.</p>
+
+  <div class="checklist-grid fade-in">
+
+    <div class="checklist-card">
+      <h3>
+        <div class="checklist-icon" style="background: rgba(29,158,117,0.12); color: var(--teal);">🛡</div>
+        Email Security
+      </h3>
+      <ul class="checklist-items">
+        <li><span class="check-bullet">✓</span>Enable SPF records on your domain</li>
+        <li><span class="check-bullet">✓</span>Configure DKIM signing for all outgoing mail</li>
+        <li><span class="check-bullet">✓</span>Set DMARC policy to p=reject</li>
+        <li><span class="check-bullet">✓</span>Flag emails with edit-distance ≤ 1 from your domain</li>
+        <li><span class="check-bullet">✓</span>Never trust display name alone — check the actual address</li>
+      </ul>
+    </div>
+
+    <div class="checklist-card">
+      <h3>
+        <div class="checklist-icon" style="background: rgba(55,138,221,0.12); color: var(--blue);">💻</div>
+        Developer Rules
+      </h3>
+      <ul class="checklist-items">
+        <li><span class="check-bullet">✓</span>Always use exact string match for domain validation</li>
+        <li><span class="check-bullet">✓</span>Never use partial match: <code style="font-size:11px; color:var(--accent);">if "brand" in domain</code></li>
+        <li><span class="check-bullet">✓</span>Strip and normalize Unicode before comparison</li>
+        <li><span class="check-bullet">✓</span>Allowlist only known legitimate domains</li>
+        <li><span class="check-bullet">✓</span>Use punycode decoding to detect IDN attacks</li>
+      </ul>
+    </div>
+
+    <div class="checklist-card">
+      <h3>
+        <div class="checklist-icon" style="background: rgba(226,75,74,0.12); color: var(--accent);">🔍</div>
+        SOC / IR Team
+      </h3>
+      <ul class="checklist-items">
+        <li><span class="check-bullet">✓</span>Monitor domain registrations similar to your brand</li>
+        <li><span class="check-bullet">✓</span>Use typosquatting detection tools (dnstwist, URLcrazy)</li>
+        <li><span class="check-bullet">✓</span>Set up Google Alerts for brand + "login" / "secure"</li>
+        <li><span class="check-bullet">✓</span>File UDRP complaints for look-alike domains</li>
+        <li><span class="check-bullet">✓</span>Scan certificate transparency logs for brand certs</li>
+      </ul>
+    </div>
+
+    <div class="checklist-card">
+      <h3>
+        <div class="checklist-icon" style="background: rgba(239,159,39,0.12); color: var(--amber);">👤</div>
+        End User Habits
+      </h3>
+      <ul class="checklist-items">
+        <li><span class="check-bullet">✓</span>Bookmark legitimate sites — don't search and click</li>
+        <li><span class="check-bullet">✓</span>Check the real domain in your browser's address bar</li>
+        <li><span class="check-bullet">✓</span>Never enter passwords after clicking an email link</li>
+        <li><span class="check-bullet">✓</span>Enable 2FA on all important accounts</li>
+        <li><span class="check-bullet">✓</span>Use a password manager — it won't autofill on fakes</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- FINANCIAL IMPACT TIMELINE -->
+<section style="padding-top: 0;">
+  <div class="section-label">Attack Lifecycle</div>
+  <h2 class="section-title">How a Payment Scam Unfolds</h2>
+  <p class="section-desc">A typical business email compromise attack that results in financial loss — step by step.</p>
+
+  <div class="timeline fade-in">
+    <div class="timeline-item">
+      <div class="time-badge">Day 0 — Hour 0</div>
+      <h4>Attacker registers a look-alike domain</h4>
+      <p>Registers something like <code style="font-family: 'Space Mono', monospace; font-size: 12px; color: #97C459; background: rgba(99,153,34,0.1); padding: 2px 6px; border-radius: 4px;">yourcompany-invoices.com</code> for under $10. Sets up spoofed email and fake invoice portal within hours.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time-badge">Day 1</div>
+      <h4>Reconnaissance & targeting</h4>
+      <p>Scrapes LinkedIn and your website for finance team names, supplier relationships, and ongoing project names to make the phish convincing.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time-badge">Day 2</div>
+      <h4>Phishing email is sent</h4>
+      <p>A convincing invoice PDF arrives from the fake domain, referencing real project names. Display name shows a known supplier. The urgency framing ("payment overdue") triggers quick action.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time-badge">Day 2 — 30 minutes later</div>
+      <h4 style="color: var(--accent);">Wire transfer is initiated</h4>
+      <p>A finance team member processes the $85,000 invoice without verifying the domain. The money hits a mule account instantly and begins moving internationally.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time-badge">Day 4</div>
+      <h4>Fraud is discovered</h4>
+      <p>The real supplier calls asking about a late payment. By now the money has moved through 3 jurisdictions. Bank recall success rate at this point: under 20%.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time-badge" style="background: rgba(226,75,74,0.15); border-color: rgba(226,75,74,0.3); color: #F09595;">Final outcome</div>
+      <h4 style="color: var(--accent);">$85,000 lost — unrecoverable</h4>
+      <p>Total damage: wire amount + legal fees + investigation costs + reputational damage. One domain check at the time of payment would have prevented all of this.</p>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="section-label">Test Yourself</div>
+  <h2 class="section-title">Spot the Phishing Domain</h2>
+  <p class="section-desc">Can you identify which domains are real and which are attacks? Take the quiz to find out.</p>
+
+  <div class="quiz-wrap fade-in">
+    <div class="quiz-progress" id="quizProgress"></div>
+    <div id="quizContainer"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">🛡 CyberShield</div>
+    <p>This resource is for security awareness and education only. All domain examples are shown for defensive purposes — to help individuals and organizations recognize and avoid phishing attacks. Never register or use look-alike domains.</p>
+    <div class="footer-warning">
+      ⚠ For awareness and training only — do not misuse this knowledge
+    </div>
+  </div>
+</footer>
+
+<script>
+// COUNTER ANIMATION
+function animateCounter(target, duration) {
+  const el = document.getElementById('counter');
+  const start = 0;
+  const step = target / (duration / 16);
+  let current = 0;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = '$' + Math.floor(current).toLocaleString();
+    if (current >= target) clearInterval(timer);
+  }, 16);
+}
+
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCounter(1800000, 2000);
+      counterObs.disconnect();
+    }
+  });
+});
+const counterEl = document.getElementById('counter');
+if (counterEl) counterObs.observe(counterEl);
+
+// FADE IN ON SCROLL
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// DOMAIN DETECTOR
+const trustedDomains = ['google.com','microsoft.com','apple.com','amazon.com','paypal.com','facebook.com','twitter.com','instagram.com','linkedin.com','netflix.com','github.com','stackoverflow.com','cloudflare.com','wikipedia.org','youtube.com','reddit.com'];
+const suspiciousKeywords = ['secure','verify','login','alert','update','confirm','account','reset','password','billing','invoice','renewal','support','help','portal','access','auth'];
+const suspiciousTlds = ['.xyz','.tk','.ml','.ga','.cf','.click','.top','.info','.biz'];
+
+function analyzeDomain() {
+  const input = document.getElementById('domainInput').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*/, '');
+  const resultEl = document.getElementById('detectorResult');
+
+  if (!input || !input.includes('.')) {
+    resultEl.style.display = 'block';
+    resultEl.className = 'detector-result result-warn';
+    resultEl.innerHTML = `<div class="result-header"><div class="result-icon result-icon-warn">?</div><div><div class="result-title" style="color:#FAC775;">Enter a valid domain</div><div style="font-size:13px;color:var(--text2);margin-top:4px;">Please enter a domain like microsoft.com</div></div></div>`;
+    return;
+  }
+
+  const checks = [];
+  let riskScore = 0;
+
+  // Check if exact match to trusted domain
+  const isTrusted = trustedDomains.some(d => input === d);
+
+  // Check subdomain abuse (trusted brand used as subdomain)
+  const isBrandAsSubdomain = trustedDomains.some(d => {
+    const brand = d.replace('.com','').replace('.org','').replace('.net','');
+    return input.startsWith(brand + '.') && !input.endsWith('.' + d) && input !== d;
+  });
+
+  // Keyword check
+  const hasKeyword = suspiciousKeywords.some(k => input.includes('-' + k) || input.includes(k + '-'));
+
+  // TLD check
+  const hasSuspiciousTld = suspiciousTlds.some(t => input.endsWith(t));
+
+  // Number substitution
+  const hasNumSubstitution = /[0-9]/.test(input.replace(/\d+\.(com|net|org|co|io)$/, ''));
+
+  // Hyphen check
+  const hasHyphens = (input.match(/-/g) || []).length >= 2;
+
+  // Length
+  const isLong = input.length > 35;
+
+  // Checks
+  if (isTrusted) {
+    checks.push({ ok: true, msg: 'Matches a known trusted domain exactly' });
+  } else {
+    const maybeClose = trustedDomains.find(d => {
+      const brand = d.split('.')[0];
+      return input.includes(brand) && input !== d;
+    });
+    if (maybeClose) {
+      checks.push({ ok: false, msg: `Contains "${maybeClose.split('.')[0]}" brand name but domain is not ${maybeClose}`, risk: 35 });
+      riskScore += 35;
+    }
+  }
+
+  if (isBrandAsSubdomain) {
+    checks.push({ ok: false, msg: 'Brand name used as subdomain — real domain is after the last dot', risk: 40 });
+    riskScore += 40;
+  }
+
+  if (hasKeyword) {
+    checks.push({ ok: false, msg: 'Contains suspicious security keyword (verify, secure, login, etc.)', risk: 25 });
+    riskScore += 25;
+  } else {
+    checks.push({ ok: true, msg: 'No suspicious security keywords detected' });
+  }
+
+  if (hasSuspiciousTld) {
+    checks.push({ ok: false, msg: 'Uses a high-risk TLD (.xyz, .tk, .ml, etc.)', risk: 30 });
+    riskScore += 30;
+  }
+
+  if (hasNumSubstitution) {
+    checks.push({ ok: false, msg: 'Contains numbers that may substitute letters (0→o, 1→l)', risk: 20 });
+    riskScore += 20;
+  } else {
+    checks.push({ ok: true, msg: 'No number-for-letter substitutions detected' });
+  }
+
+  if (hasHyphens) {
+    checks.push({ ok: false, msg: 'Multiple hyphens — common in phishing domain construction', risk: 15 });
+    riskScore += 15;
+  }
+
+  if (isLong) {
+    checks.push({ ok: false, msg: 'Unusually long domain (attackers hide real domain in long URLs)', risk: 10 });
+    riskScore += 10;
+  }
+
+  let resultClass, iconClass, titleClass, title, icon;
+
+  if (isTrusted) {
+    riskScore = 0;
+    resultClass = 'result-safe'; iconClass = 'result-icon-safe'; titleClass = 'result-title-safe';
+    title = 'Appears Safe — Trusted Domain'; icon = '✓';
+  } else if (riskScore >= 40) {
+    resultClass = 'result-danger'; iconClass = 'result-icon-danger'; titleClass = 'result-title-danger';
+    title = `High Risk — Likely Phishing (score: ${Math.min(riskScore,100)}/100)`; icon = '✗';
+  } else if (riskScore >= 20) {
+    resultClass = 'result-warn'; iconClass = 'result-icon-warn'; titleClass = 'result-title-warn';
+    title = `Medium Risk — Verify Carefully (score: ${riskScore}/100)`; icon = '⚠';
+  } else {
+    resultClass = 'result-safe'; iconClass = 'result-icon-safe'; titleClass = 'result-title-safe';
+    title = `Low Risk — Appears Safe (score: ${riskScore}/100)`; icon = '✓';
+  }
+
+  resultEl.className = 'detector-result ' + resultClass;
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = `
+    <div class="result-header">
+      <div class="result-icon ${iconClass}">${icon}</div>
+      <div>
+        <div class="result-title ${titleClass}">${title}</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:3px;font-family:'Space Mono',monospace;">${input}</div>
+      </div>
+    </div>
+    <ul class="result-checks">
+      ${checks.map(c => `<li><span class="${c.ok ? 'check-safe' : 'check-danger'}">${c.ok ? '✓' : '✗'}</span> ${c.msg}</li>`).join('')}
+    </ul>
+    <p style="font-size:12px;color:var(--text3);margin-top:1rem;border-top:1px solid rgba(255,255,255,0.05);padding-top:1rem;">⚠ This is an educational heuristic tool only. Always verify domains independently before entering sensitive data.</p>
+  `;
+}
+
+function setAndAnalyze(domain) {
+  document.getElementById('domainInput').value = domain;
+  analyzeDomain();
+}
+
+document.getElementById('domainInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') analyzeDomain();
+});
+
+// QUIZ
+const quizData = [
+  {
+    q: "Which of these is a legitimate Microsoft domain?",
+    desc: "Select the one you would trust to enter your password on.",
+    options: ["micros0ft.com", "microsoft.login-secure.net", "microsoft.com", "rnicrosoft.com"],
+    correct: 2,
+    explanation: "microsoft.com is the only real Microsoft domain. The others use number substitution (0→o), subdomain abuse, and 'rn' to look like 'm'."
+  },
+  {
+    q: "An email arrives from 'PayPal Security <alerts@paypa1-secure.com>'. What's wrong?",
+    options: ["Nothing, it looks legitimate", "The display name is wrong", "The sender domain is paypa1-secure.com, not paypal.com", "The subject line is suspicious"],
+    correct: 2,
+    explanation: "Always check the actual email address, not the display name. paypa1-secure.com is an attacker's domain — '1' replaces 'l' and 'secure' is added to seem trusted."
+  },
+  {
+    q: "You receive a link: apple.verify-account-now.com — who really owns this site?",
+    options: ["Apple Inc.", "verify-account-now.com (the attacker)", "apple.com", "It depends on the SSL certificate"],
+    correct: 1,
+    explanation: "The real domain is the registrable portion: verify-account-now.com. 'apple' is just a subdomain — the attacker controls the whole site."
+  },
+  {
+    q: "What does a DMARC policy of p=reject do?",
+    options: ["Encrypts your emails", "Blocks emails that fail SPF/DKIM checks from reaching inboxes", "Adds a spam label to suspicious emails", "Requires 2FA for email logins"],
+    correct: 1,
+    explanation: "DMARC p=reject instructs email receivers to outright reject messages that fail authentication checks, preventing spoofed emails from your domain reaching victims."
+  },
+  {
+    q: "Which code pattern is UNSAFE for domain validation?",
+    options: [
+      "if (domain === 'paypal.com')",
+      "if ('paypal.com'.equals(domain))",
+      "if ('paypal' in domain)",
+      "allowList.includes(domain)"
+    ],
+    correct: 2,
+    explanation: "'paypal' in domain would also match paypal-secure.net, paypal.attacker.com, etc. Always use exact match or an allowlist — never substring matching."
+  }
+];
+
+let currentQ = 0;
+let answered = false;
+
+function renderQuiz() {
+  const q = quizData[currentQ];
+  const progress = document.getElementById('quizProgress');
+  const container = document.getElementById('quizContainer');
+
+  progress.innerHTML = quizData.map((_, i) => `<div class="qp-dot ${i < currentQ ? 'done' : i === currentQ ? 'active' : ''}"></div>`).join('');
+
+  container.innerHTML = `
+    <div class="quiz-q">${q.q}</div>
+    ${q.desc ? `<div class="quiz-desc">${q.desc}</div>` : ''}
+    <div class="quiz-options" id="quizOpts">
+      ${q.options.map((opt, i) => `
+        <button class="quiz-opt" onclick="answerQuiz(${i})" id="qopt${i}">
+          <span style="font-family:'Space Mono',monospace; color:var(--text3); margin-right:12px; font-size:11px;">${String.fromCharCode(65+i)}</span>${opt}
+        </button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <button class="quiz-next" id="quizNextBtn" onclick="nextQuiz()">${currentQ < quizData.length - 1 ? 'Next Question →' : 'See Results →'}</button>
+  `;
+  answered = false;
+}
+
+function answerQuiz(selected) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[currentQ];
+  const feedback = document.getElementById('quizFeedback');
+  const nextBtn = document.getElementById('quizNextBtn');
+
+  q.options.forEach((_, i) => {
+    const btn = document.getElementById('qopt' + i);
+    btn.style.cursor = 'default';
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === selected && selected !== q.correct) btn.classList.add('wrong');
+  });
+
+  const isCorrect = selected === q.correct;
+  feedback.className = `quiz-feedback ${isCorrect ? 'verdict-safe' : 'verdict-phish'}`;
+  feedback.style.display = 'block';
+  feedback.innerHTML = `<span class="verdict-icon">${isCorrect ? '✓' : '✗'}</span> <span><strong>${isCorrect ? 'Correct!' : 'Incorrect.'}</strong> ${q.explanation}</span>`;
+  nextBtn.style.display = 'inline-block';
+}
+
+let score = 0;
+const userAnswers = [];
+
+function nextQuiz() {
+  const feedback = document.getElementById('quizFeedback');
+  const wasCorrect = document.querySelector('.quiz-opt.correct') && !document.querySelector(`.quiz-opt.correct + .quiz-opt.wrong`) && document.querySelector('.quiz-opt.correct');
+  currentQ++;
+  if (currentQ < quizData.length) {
+    renderQuiz();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  const correct = document.querySelectorAll('.quiz-opt.correct').length;
+  const container = document.getElementById('quizContainer');
+  const progress = document.getElementById('quizProgress');
+  progress.innerHTML = quizData.map(() => `<div class="qp-dot done"></div>`).join('');
+  container.innerHTML = `
+    <div style="text-align: center; padding: 2rem 0;">
+      <div style="font-size: 64px; margin-bottom: 1rem;">🎓</div>
+      <div class="quiz-q" style="font-size: 24px; margin-bottom: 0.5rem;">Quiz Complete!</div>
+      <p style="color: var(--text2); font-weight: 300; margin-bottom: 2rem;">You completed all ${quizData.length} questions. Remember: your best defence is knowledge and habit.</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
+        <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 2rem; min-width: 140px;">
+          <div style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 40px; color: var(--teal);">${quizData.length}/${quizData.length}</div>
+          <div style="font-size: 13px; color: var(--text2);">Questions answered</div>
+        </div>
+      </div>
+      <button onclick="resetQuiz()" style="background: var(--accent); border: none; border-radius: 10px; padding: 12px 28px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;">Retake Quiz</button>
+    </div>
+  `;
+}
+
+function resetQuiz() {
+  currentQ = 0;
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

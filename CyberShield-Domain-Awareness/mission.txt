@@ -1,0 +1,5 @@
+  Target    :  Reduce phishing click rates through interactive education
+  Method    :  Show, don't tell — live domain demos + quiz + detector
+  Audience  :  Devs · SOC Teams · Finance Teams · General Users
+  Stack     :  Pure HTML + CSS + Vanilla JS — zero dependencies
+  Status    :  Active · Open for contributions
